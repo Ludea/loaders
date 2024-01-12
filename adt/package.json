@@ -1,0 +1,18 @@
+{
+  "name": "adt",
+  "packageManager": "yarn@4.0.2",
+  "scripts": {
+    "build": "yarn compile",
+    "test": "jest -c ../../../jest.config.ts",
+    "clean": "rimraf dist, //&& rimraf *.tsbuildinfo",
+    "compile": "tsc -b tsconfig.build.json"
+  },
+  "devDependencies": {
+    "rimraf": "^5.0.5",
+    "typescript": "^5.3.3"
+  },
+  "dependencies": {
+    "@babylonjs/core": "^6.37.1",
+    "@wowserhq/format": "^0.11.0"
+  }
+}
