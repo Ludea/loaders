@@ -6,9 +6,9 @@ __metadata:
   cacheKey: 10c0
 
 "@babylonjs/core@npm:^6.37.1":
-  version: 6.37.1
-  resolution: "@babylonjs/core@npm:6.37.1"
-  checksum: 8933609a71649ac8b15739c4eebc5990d2413b6bcb6afaba9afb09abce7d9a99a0289b284a79337bba0b09c105dd872df848fc63442a91c4c09b4239292791b5
+  version: 6.39.0
+  resolution: "@babylonjs/core@npm:6.39.0"
+  checksum: cb5ea5d9c333e3d7ce8d10b22c40034929f4f562b6949ce09636bc0a84c2a2cc1665fe31bad21389341f3b4611c28870b617b2cc86bd397297a300dda497dfa9
   languageName: node
   linkType: hard
 
@@ -49,18 +49,6 @@ __metadata:
   checksum: 60822d92befcbe8530e5b9d6e0382fc416a3446e5011fe8e66ad3c816ef733c15d26bce5d7f0e19be9d9d3308511495bba9720e866391cfcd768b505e899e0ee
   languageName: node
   linkType: hard
-
-"adt@workspace:.":
-  version: 0.0.0-use.local
-  resolution: "adt@workspace:."
-  dependencies:
-    "@babylonjs/core": "npm:^6.37.1"
-    "@wowserhq/format": "npm:^0.11.0"
-    prettier: "npm:^3.2.4"
-    rimraf: "npm:^5.0.5"
-    typescript: "npm:^5.3.3"
-  languageName: unknown
-  linkType: soft
 
 "ansi-regex@npm:^5.0.1":
   version: 5.0.1
@@ -357,6 +345,18 @@ __metadata:
   checksum: 1d0a5f4ce496c42caa9a30e659c467c5686eae15d54b027ee7866744952547f1be1262f2d40de911618c242b510029d51d43ff605dba8fb740ec85ca2d3f9500
   languageName: node
   linkType: hard
+
+"wdt@workspace:.":
+  version: 0.0.0-use.local
+  resolution: "wdt@workspace:."
+  dependencies:
+    "@babylonjs/core": "npm:^6.37.1"
+    "@wowserhq/format": "npm:^0.11.0"
+    prettier: "npm:^3.2.4"
+    rimraf: "npm:^5.0.5"
+    typescript: "npm:^5.3.3"
+  languageName: unknown
+  linkType: soft
 
 "which@npm:^2.0.1":
   version: 2.0.2

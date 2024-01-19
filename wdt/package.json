@@ -1,5 +1,5 @@
 {
-  "name": "adt",
+  "name": "wdt",
   "packageManager": "yarn@4.0.2",
   "module": "dist/Index.js",
   "scripts": {
