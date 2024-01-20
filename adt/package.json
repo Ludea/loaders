@@ -1,6 +1,6 @@
 {
-  "name": "adt",
-  "packageManager": "yarn@4.0.2",
+  "name": "adtloader",
+  "version": "0.1.0",
   "module": "dist/Index.js",
   "scripts": {
     "build": "yarn compile",
