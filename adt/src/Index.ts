@@ -18,6 +18,7 @@ import type {
 import type { Scene } from "@babylonjs/core/scene";
 import { AssetContainer } from "@babylonjs/core/assetContainer";
 import { Mesh } from "@babylonjs/core/Meshes/mesh";
+import { MeshBuilder } from "@babylonjs/core/Meshes/meshBuilder";
 import { VertexData } from "@babylonjs/core/Meshes/mesh.vertexData";
 import { Map, MapArea } from "@wowserhq/format";
 
@@ -126,29 +127,38 @@ export default class ADTFileLoader
     const area = new MapArea(map.layerSplatDepth).load(areaData);
     var vertexData = new VertexData();
     var adt = new Mesh("adt", scene);
-    let vertexBuffer;
+    //let vertexBuffer;
     let indexBuffer;
+    let spec: any;
     for (const chunk of area.chunks) {
       if (chunk.layers.length === 0) {
         continue;
       }
-      vertexBuffer = createTerrainVertexBuffer(
+      spec = createTerrainVertexBuffer(
         chunk.vertexHeights,
         chunk.vertexNormals,
       );
       indexBuffer = createTerrainIndexBuffer(chunk.holes);
     }
-    const position: number[] = Array.from(new Float32Array(indexBuffer!));
-    const indices: number[] = Array.from(new Float32Array(vertexBuffer!));
+    const position = new Float32Array(spec.indexBuffer!);
+    const normals = new Float32Array(spec.vertexBuffer!);
+    const indices = new Uint16Array(indexBuffer!);
     vertexData.positions = position;
     vertexData.indices = indices;
+    vertexData.normals = normals;
     vertexData.applyToMesh(adt);
+    const option = {
+      height: spec.bounds[0],
+      width: spec.bounds[1],
+    };
+    const box = MeshBuilder.CreateBox("box", option, scene);
     const array: Array<Promise<void>> = [];
-    const mesh: Array<Mesh> = [];
-    mesh.push(adt);
+    const meshes: Array<Mesh> = [];
+    meshes.push(adt);
+    meshes.push(box);
     return Promise.all(array).then(() => {
       return {
-        meshes: mesh,
+        meshes: meshes,
         particleSystems: [],
         skeletons: [],
         animationGroups: [],

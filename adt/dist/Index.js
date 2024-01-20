@@ -1,6 +1,7 @@
 import { MAP_CHUNK_FACE_COUNT_X, MAP_CHUNK_FACE_COUNT_Y, MAP_CHUNK_HEIGHT, MAP_CHUNK_VERTEX_COUNT, MAP_CHUNK_VERTEX_STEP_X, MAP_CHUNK_VERTEX_STEP_Y, MAP_CHUNK_WIDTH, } from "@wowserhq/format";
 import { AssetContainer } from "@babylonjs/core/assetContainer";
 import { Mesh } from "@babylonjs/core/Meshes/mesh";
+import { MeshBuilder } from "@babylonjs/core/Meshes/meshBuilder";
 import { VertexData } from "@babylonjs/core/Meshes/mesh.vertexData";
 import { Map, MapArea } from "@wowserhq/format";
 const DEFAULT_TERRAIN_VERTEX_BUFFER = (() => {
@@ -82,26 +83,35 @@ export default class ADTFileLoader {
         const area = new MapArea(map.layerSplatDepth).load(areaData);
         var vertexData = new VertexData();
         var adt = new Mesh("adt", scene);
-        let vertexBuffer;
+        //let vertexBuffer;
         let indexBuffer;
+        let spec;
         for (const chunk of area.chunks) {
             if (chunk.layers.length === 0) {
                 continue;
             }
-            vertexBuffer = createTerrainVertexBuffer(chunk.vertexHeights, chunk.vertexNormals);
+            spec = createTerrainVertexBuffer(chunk.vertexHeights, chunk.vertexNormals);
             indexBuffer = createTerrainIndexBuffer(chunk.holes);
         }
-        const position = Array.from(new Float32Array(indexBuffer));
-        const indices = Array.from(new Float32Array(vertexBuffer));
+        const position = new Float32Array(spec.indexBuffer);
+        const normals = new Float32Array(spec.vertexBuffer);
+        const indices = new Uint16Array(indexBuffer);
         vertexData.positions = position;
         vertexData.indices = indices;
+        vertexData.normals = normals;
         vertexData.applyToMesh(adt);
+        const option = {
+            height: spec.bounds[0],
+            width: spec.bounds[1],
+        };
+        const box = MeshBuilder.CreateBox("box", option, scene);
         const array = [];
-        const mesh = [];
-        mesh.push(adt);
+        const meshes = [];
+        meshes.push(adt);
+        meshes.push(box);
         return Promise.all(array).then(() => {
             return {
-                meshes: mesh,
+                meshes: meshes,
                 particleSystems: [],
                 skeletons: [],
                 animationGroups: [],
