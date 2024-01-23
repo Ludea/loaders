@@ -33,13 +33,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@wowserhq/format@npm:^0.11.0":
-  version: 0.11.0
-  resolution: "@wowserhq/format@npm:0.11.0"
+"@wowserhq/format@file:../../format::locator=adtloader%40workspace%3A.":
+  version: 0.18.0
+  resolution: "@wowserhq/format@file:../../format#../../format::hash=b1aed4&locator=adtloader%40workspace%3A."
   dependencies:
     "@wowserhq/io": "npm:^2.0.2"
     gl-matrix: "npm:^3.4.3"
-  checksum: 02a4b27f3fe98afbdf8f578400e8759794abefda28483fe4594ba5bd4d8ef0a9bcec5f1873fe1932d158a1351eb44bfd4f8aa676edc8a22b502bb7731af1c5e3
+  checksum: dda66124ab488c8fb3dc332e32c446e2666be2f08cd4203c8b3b564e9cfcad8cbcaff0457d5e84fe240ea7993e8a7365a1b1514e929c59174b79bf751f473a4b
   languageName: node
   linkType: hard
 
@@ -55,7 +55,7 @@ __metadata:
   resolution: "adtloader@workspace:."
   dependencies:
     "@babylonjs/core": "npm:^6.37.1"
-    "@wowserhq/format": "npm:^0.11.0"
+    "@wowserhq/format": ../../format
     prettier: "npm:^3.2.4"
     rimraf: "npm:^5.0.5"
     typescript: "npm:^5.3.3"
