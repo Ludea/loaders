@@ -8,6 +8,24 @@ import {
   MAP_CHUNK_WIDTH,
 } from "@wowserhq/format";
 
+const getBoundsCenter = (extent: Float32Array) => {
+  const center = new Float32Array(3);
+
+  center[0] = (extent[0] + extent[3]) * 0.5;
+  center[1] = (extent[1] + extent[4]) * 0.5;
+  center[2] = (extent[2] + extent[5]) * 0.5;
+
+  return center;
+};
+
+const getBoundsRadius = (extent: Float32Array, center: Float32Array) => {
+  const x = extent[3] - center[0];
+  const y = extent[4] - center[1];
+  const z = extent[5] - center[2];
+
+  return Math.sqrt(x * x + y * y + z * z);
+};
+
 const DEFAULT_TERRAIN_VERTEX_BUFFER = (() => {
   // Vertex coordinates for x-axis (forward axis)
   const vxe = new Float32Array(MAP_CHUNK_FACE_COUNT_X + 1);
@@ -57,7 +75,7 @@ const DEFAULT_TERRAIN_VERTEX_BUFFER = (() => {
   return vertexBuffer;
 })();
 
-export const createTerrainVertexBuffer = (
+const createTerrainVertexBuffer = (
   vertexHeights: Float32Array,
   vertexNormals: Int8Array,
 ) => {
@@ -65,21 +83,43 @@ export const createTerrainVertexBuffer = (
   const data = DEFAULT_TERRAIN_VERTEX_BUFFER.slice(0);
   const view = new DataView(data);
 
+  let minZ = +Infinity;
+  let maxZ = -Infinity;
+
   for (let i = 0; i < vertexHeights.length; i++) {
     const vertexOfs = i * 16;
+    const vertexHeight = vertexHeights[i];
 
-    view.setFloat32(vertexOfs + 8, vertexHeights[i], true);
+    // Track bounds (z)
+    minZ = Math.min(minZ, vertexHeight);
+    maxZ = Math.max(maxZ, vertexHeight);
 
+    // Position (z)
+    view.setFloat32(vertexOfs + 8, vertexHeight, true);
+
+    // Normal
     const normalOfs = i * 3;
     view.setInt8(vertexOfs + 12, vertexNormals[normalOfs + 0]);
     view.setInt8(vertexOfs + 13, vertexNormals[normalOfs + 1]);
     view.setInt8(vertexOfs + 14, vertexNormals[normalOfs + 2]);
   }
 
-  return data;
+  const minX = view.getFloat32(data.byteLength - 16, true);
+  const minY = view.getFloat32(data.byteLength - 12, true);
+  const maxX = view.getFloat32(0, true);
+  const maxY = view.getFloat32(4, true);
+
+  const extent = new Float32Array([minX, minY, minZ, maxX, maxY, maxZ]);
+  const center = getBoundsCenter(extent);
+  const radius = getBoundsRadius(extent, center);
+
+  return {
+    bounds: { extent, center, radius },
+    vertexBuffer: data,
+  };
 };
 
-export const createTerrainIndexBuffer = (holes: number) => {
+const createTerrainIndexBuffer = (holes: number) => {
   const data = new ArrayBuffer(
     MAP_CHUNK_FACE_COUNT_X * MAP_CHUNK_FACE_COUNT_Y * 3 * 4 * 2,
   );
@@ -125,3 +165,5 @@ const isTerrainHole = (holes: number, x: number, y: number) => {
 
   return (hole & holes) !== 0;
 };
+
+export { createTerrainIndexBuffer, createTerrainVertexBuffer };
