@@ -1,9 +1,8 @@
 {
   "name": "adtloader",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "module": "dist/Index.js",
   "scripts": {
-    "build": "pnpm compile",
     "test": "jest -c ../../../jest.config.ts",
     "clean": "rimraf dist, //&& rimraf *.tsbuildinfo",
     "compile": "tsc -b tsconfig.build.json",
