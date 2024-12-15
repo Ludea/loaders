@@ -1,6 +1,6 @@
 {
   "name": "adtloader",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "module": "dist/Index.js",
   "scripts": {
     "build": "pnpm compile",
