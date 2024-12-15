@@ -84,7 +84,7 @@ export default class ADTFileLoader
       );
       indexBuffer = createTerrainIndexBuffer(chunk.holes);
     }
-    const position = new Float32Array(indexBuffer!);
+    const position = new Float32Array(spec.vertexBuffer);
     const normals = new Float32Array(spec.vertexBuffer);
     const indices = new Uint16Array(indexBuffer!);
     vertexData.positions = position;
@@ -119,6 +119,7 @@ export default class ADTFileLoader
         transformNodes: [],
         geometries: [],
         lights: [],
+	spriteManagers: []
       };
     });
   }
