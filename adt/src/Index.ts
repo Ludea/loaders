@@ -8,10 +8,11 @@ import type {
 } from "@babylonjs/core/Loading/sceneLoader";
 import type { Scene } from "@babylonjs/core/scene";
 import { AssetContainer } from "@babylonjs/core/assetContainer";
+import { Buffer, VertexBuffer } from "@babylonjs/core/Buffers/buffer";
 import { BoundingInfo } from "@babylonjs/core/Culling";
 import { Vector3 } from "@babylonjs/core/Maths";
 import { Mesh } from "@babylonjs/core/Meshes/mesh";
-import { VertexData } from "@babylonjs/core/Meshes/mesh.vertexData";
+
 import { MapArea } from "@wowserhq/format";
 import { createTerrainVertexBuffer, createTerrainIndexBuffer } from "./util";
 
@@ -70,7 +71,6 @@ export default class ADTFileLoader
     //    const map =
     //new Map().load(this.wdtContent);
     const area = new MapArea(4).load(data);
-    var vertexData = new VertexData();
     let adt = new Mesh("adt", scene);
     let indexBuffer;
     let spec: any;
@@ -84,14 +84,15 @@ export default class ADTFileLoader
       );
       indexBuffer = createTerrainIndexBuffer(chunk.holes);
     }
-    const position = new Float32Array(spec.vertexBuffer);
-    const normals = new Float32Array(spec.vertexBuffer);
+    const positions = new Float32Array(spec.vertexBuffer);
+    const positionBuffer = new Buffer(scene.getEngine(), positions, false, 4);
+    //const normals = new Float32Array(spec.vertexBuffer);
     const indices = new Uint16Array(indexBuffer!);
-    vertexData.positions = position;
-    vertexData.indices = indices;
-    vertexData.normals = normals;
-    vertexData.applyToMesh(adt);
-
+    
+    const positionsBuffer = new VertexBuffer(scene.getEngine(), positionBuffer, VertexBuffer.PositionKind, false, false, 0, false, 0, 3);
+ 
+    adt.setVerticesBuffer(positionsBuffer);
+    adt.setIndices(indices, 1);
     const minimum = new Vector3(
       spec.bounds.minX,
       spec.bounds.minY,
