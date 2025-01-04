@@ -1,3 +1,11 @@
+type MapDoodadDefSpec = {
+  id: number;
+  name: string;
+  position: number[];
+  rotation: number[];
+  scale: number;
+};
+
 /* type TerrainLayerSpec = {
   texturePath: string;
   effectId: number;
@@ -27,4 +35,10 @@ type TerrainSpec = {
   //material: TerrainMaterialSpec;
 };
 
-export { TerrainSpec };
+type MapAreaSpec = {
+  terrain: TerrainSpec[];
+  areaTableIds: Uint32Array;
+  doodadDefs: MapDoodadDefSpec[];
+};
+
+export { MapAreaSpec, TerrainSpec };

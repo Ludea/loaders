@@ -8,7 +8,7 @@ import type {
 } from "@babylonjs/core/Loading/sceneLoader";
 import type { Scene } from "@babylonjs/core/scene";
 import { AssetContainer } from "@babylonjs/core/assetContainer";
-import { Buffer, VertexBuffer } from "@babylonjs/core/Buffers/buffer";
+import { VertexBuffer } from "@babylonjs/core/Buffers/buffer";
 //import { VertexData } from "@babylonjs/core/Meshes/mesh.vertexData";
 //import { BoundingInfo } from "@babylonjs/core/Culling";
 //import { Vector3 } from "@babylonjs/core/Maths";
@@ -27,7 +27,7 @@ import {
   createTerrainIndexBuffer,
   //mergeTerrainLayerSplats,
 } from "./util";
-import { TerrainSpec } from "./types";
+import { MapAreaSpec, TerrainSpec } from "./types";
 
 export default class ADTFileLoader
   implements ISceneLoaderPluginAsync, ISceneLoaderPluginFactory
@@ -85,11 +85,18 @@ export default class ADTFileLoader
     //new Map().load(this.wdtContent);
     const area = new MapArea(4).load(data);
     let adt = new Mesh("root", scene);
-    let spec = loadAreaSpec(area);
-    for (let i = 0; i < spec.length; i++) {
-      let mesh = createMesh(spec[i], scene);
-      mesh.parent = adt;
-    }
+    let test = loadAreaSpec(area);
+    const ameshes = test.terrain.map((terrain) => createMesh(terrain, scene));
+
+     for (const mesh of ameshes) {      
+mesh.parent = adt
+}
+ //     mesh.position = new Vector3(
+ //       spec.terrain[i].position[0],
+   //     spec.terrain[i].position[1],
+   //     spec.terrain[i].position[2],
+   //   );
+    //}
 
     const array: Array<Promise<void>> = [];
     const meshes: Array<Mesh> = [];
@@ -185,19 +192,38 @@ const createTerrainGeometrySpec = (chunk: MapChunk) => {
 }; */
 
 const loadAreaSpec = (area: any) => {
+  const areaTableIds = new Uint32Array(area.chunks.length);
   let terrainSpecs: TerrainSpec[] = [];
-  for (const chunk of area.chunks) {
+
+  for (let i = 0; i < area.chunks.length; i++) {
+      const chunk = area.chunks[i];
+      areaTableIds[i] = chunk.areaId;
+
     if (chunk.layers.length === 0) {
       continue;
     }
+
     const terrainSpec = {
       position: chunk.position,
       geometry: createTerrainGeometrySpec(chunk),
       //      material: createTerrainMaterialSpec(chunk),
     };
+
     terrainSpecs.push(terrainSpec);
   }
-  return terrainSpecs;
+
+  const spec: MapAreaSpec = {
+    terrain: terrainSpecs,
+    areaTableIds,
+    doodadDefs: area.doodadDefs.map((def: any) => ({
+      id: def.id,
+      name: def.name,
+      position: def.position,
+      rotation: def.rotation,
+      scale: def.scale,
+    })),
+  };
+  return spec;
 };
 
 const createMesh = (spec: TerrainSpec, scene: any) => {
@@ -212,47 +238,45 @@ const createMesh = (spec: TerrainSpec, scene: any) => {
 
 const createGeometry = (spec: TerrainSpec, engine: any) => {
   const positions = new Float32Array(spec.geometry.vertexBuffer);
-  const positionBuffer = new Buffer(engine, positions, false, 4);
-  //  const normals = new Int8Array(spec.geometry.vertexBuffer);
-  //  const normalsBuffer = new Buffer(engine, normals, false, 16);
-  const index = new Uint16Array(spec.geometry.indexBuffer);
-  //const indexBuffer = new Buffer(engine, index, false);
-  console.log("index : ", index);
-  console.log("positions : ", positions);
-  //p  const positionsVBuffer =
-  new VertexBuffer(
+  //const normals = new Int8Array(spec.geometry.vertexBuffer);
+  //const index = new Uint16Array(spec.geometry.indexBuffer);
+
+//  console.log("index : ", index);
+//  console.log("positions : ", positions)
+ // console.log("normals: ", normals);
+
+  const positionsBuffer = new VertexBuffer(
     engine,
-    positionBuffer,
+    positions,
     VertexBuffer.PositionKind,
     false,
     false,
-    0,
+    4,
     false,
     0,
     3,
   );
-  //const test = new VertexData();
-  //test.set(positions, VertexBuffer.PositionKind);
-  /* const normalsVBuffer = new VertexBuffer(
+  
+  //const normalsBuffer = 
+/*new VertexBuffer(
     engine,
-    normalsBuffer,
+    normals,
     VertexBuffer.NormalKind,
     false,
     false,
-    0,
+    16,
     false,
     12,
     4,
     0,
     true,
-  );*/
-
+  );
+*/
   let geometry = new Geometry("geometry");
-  //geometry.setVerticesBuffer(positionsVBuffer);
-  //geometry.setVerticesBuffer(normalsVBuffer);
-  //geometry.setIndexBuffer(indexBuffer, positions.length / 3, index.length);
-  //test.applyToGeometry(geometry);
+  //geometry.setVerticesBuffer(positionsBuffer);
+  //geometry.setVerticesBuffer(normalsBuffer);
   //geometry.setIndices(index);
+
   /* const minimum = new Vector3(
     spec.bounds.minX,
     spec.bounds.minY,
