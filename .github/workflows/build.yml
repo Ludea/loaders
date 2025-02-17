@@ -19,8 +19,8 @@ jobs:
         with:
           version: 9
       - name: Install dependencies
-        run: pnpm install
+        run: cd adt && pnpm install
       - name: prettier
-        run: pnpm format
+        run: cd adt && pnpm format
       - name: build
-        run: pnpm compile
+        run: cd adt && pnpm compile
