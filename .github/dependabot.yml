@@ -6,6 +6,6 @@ updates:
       interval: "daily"
 
   - package-ecosystem: "github-actions"
-    directory: "adt/"
+    directory: "/"
     schedule:
       interval: "daily"
