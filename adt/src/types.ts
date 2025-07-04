@@ -6,23 +6,23 @@ type MapDoodadDefSpec = {
   scale: number;
 };
 
-/* type TerrainLayerSpec = {
+/*type TerrainLayerSpec = {
   texturePath: string;
   effectId: number;
-}; */
+};
 
-/* type TerrainSplatSpec = {
+type TerrainSplatSpec = {
   data: Uint8Array;
   width: number;
   height: number;
   channels: number;
-}; */
+};
 
-/* type TerrainMaterialSpec = {
+type TerrainMaterialSpec = {
   splat: TerrainSplatSpec;
   layers: TerrainLayerSpec[];
-}; */
-
+};
+*/
 type TerrainGeometrySpec = {
   bounds: { extent: Float32Array; center: Float32Array; radius: number };
   vertexBuffer: ArrayBuffer;

@@ -1,10 +1,17 @@
 import { AssetContainer } from "@babylonjs/core/assetContainer";
 import { VertexBuffer } from "@babylonjs/core/Buffers/buffer";
-//import { VertexData } from "@babylonjs/core/Meshes/mesh.vertexData";
+import { Buffer } from "@babylonjs/core/Buffers";
 //import { BoundingInfo } from "@babylonjs/core/Culling";
 import { Vector3 } from "@babylonjs/core/Maths";
 import { Mesh } from "@babylonjs/core/Meshes/mesh";
+import { TransformNode } from "@babylonjs/core/Meshes";
 import { Geometry } from "@babylonjs/core/Meshes/geometry";
+/*import {
+  CreateRGBAStorageTexture,
+  Texture,
+  RawTexture,
+} from "@babylonjs/core/Materials/Textures";*/
+//import { Engine } from "@babylonjs/core/Engines";
 import {
   MapArea,
   //MAP_LAYER_SPLAT_X,
@@ -54,30 +61,30 @@ export default class ADTFileLoader {
     //    const map =
     //new Map().load(this.wdtContent);
     const area = new MapArea(4).load(data);
-    let adt = new Mesh("root", scene);
+    let adt = new TransformNode("root", scene);
     let areaSpec = loadAreaSpec(area);
-    const meshesSpecs = areaSpec.terrain.map((terrain) =>
-      createMesh(terrain, scene),
-    );
-    for (let i = 0; i < meshesSpecs.length; i++) {
-      let mesh = new Mesh("i", scene);
-      mesh.parent = adt;
-      mesh.position = new Vector3(
-        areaSpec.terrain[i].position[0],
-        areaSpec.terrain[i].position[1],
-        areaSpec.terrain[i].position[2],
-      );
-    }
+    Promise.all(areaSpec.terrain.map((terrain) => createMesh(terrain, scene)))
+      .then((adtmeshes) => {
+        for (const mesh of adtmeshes) {
+          mesh.parent = adt;
+        }
+        //mesh.position = new Vector3(
+        //areaSpec.terrain.position[0],
+        //areaSpec.terrain[i].position[1],
+        //areaSpec.terrain[i].position[2],
+        // );
+      })
+      .catch((err) => console.log(err));
     const array = [];
-    const meshes = [];
-    meshes.push(adt);
+    const transformNodes = [];
+    transformNodes.push(adt);
     return Promise.all(array).then(() => {
       return {
-        meshes: meshes,
+        meshes: [],
         particleSystems: [],
         skeletons: [],
         animationGroups: [],
-        transformNodes: [],
+        transformNodes: transformNodes,
         geometries: [],
         lights: [],
         spriteManagers: [],
@@ -107,7 +114,7 @@ const createTerrainGeometrySpec = (chunk) => {
     indexBuffer,
   };
 };
-/* const createTerrainMaterialSpec = (chunk: MapChunk) => {
+/*const createTerrainMaterialSpec = (chunk: MapChunk) => {
   const splat = createTerrainSplatSpec(chunk.layers);
   const layers = chunk.layers.map((layer) => ({
     effectId: layer.effectId,
@@ -120,7 +127,7 @@ const createTerrainGeometrySpec = (chunk) => {
   };
 };
 
-/* const createTerrainSplatSpec = (layers: MapLayer[]) => {
+const createTerrainSplatSpec = (layers: MapLayer[]) => {
   // No splat (0 or 1 layer)
 
   if (layers.length <= 1) {
@@ -152,7 +159,8 @@ const createTerrainGeometrySpec = (chunk) => {
     data: mergedSplat,
     channels: 4,
   };
-}; */
+};
+*/
 const loadAreaSpec = (area) => {
   const areaTableIds = new Uint32Array(area.chunks.length);
   let terrainSpecs = [];
@@ -182,19 +190,26 @@ const loadAreaSpec = (area) => {
   };
   return spec;
 };
-const createMesh = (spec, scene) => {
-  const geometry = createGeometry(spec, scene.getEngine());
+const createMesh = async (spec, scene) => {
+  console.log(spec);
+  let geometry = createGeometry(spec, scene);
+  //  const material = createMaterial(spec);
   let childMesh = new Mesh("adt", scene);
   geometry.applyToMesh(childMesh);
+  childMesh.position = new Vector3(
+    spec.position[0],
+    spec.position[1],
+    spec.position[2],
+  );
   return childMesh;
 };
-const createGeometry = (spec, engine) => {
-  const positions = new Float32Array(spec.geometry.vertexBuffer);
-  //const normals = new Int8Array(spec.geometry.vertexBuffer);
-  const index = new Uint16Array(spec.geometry.indexBuffer);
+const createGeometry = (spec, scene) => {
+  const vertexArray = new Float32Array(spec.geometry.vertexBuffer);
+  //const index = new Uint16Array(spec.geometry.indexBuffer);
+  const buffer = new Buffer(scene.getEngine(), vertexArray, false);
   const positionsBuffer = new VertexBuffer(
-    engine,
-    positions,
+    scene.getEngine(),
+    buffer,
     VertexBuffer.PositionKind,
     false,
     false,
@@ -203,25 +218,21 @@ const createGeometry = (spec, engine) => {
     0,
     3,
   );
-  //const normalsBuffer =
-  /*new VertexBuffer(
-      engine,
-      normals,
-      VertexBuffer.NormalKind,
-      false,
-      false,
-      16,
-      false,
-      12,
-      4,
-      0,
-      true,
-    );
-  */
-  let geometry = new Geometry("geometry");
+  const normalsBuffer = new VertexBuffer(
+    scene.getEngine(),
+    buffer,
+    VertexBuffer.NormalKind,
+    false,
+    undefined,
+    16,
+    undefined,
+    12,
+    4,
+  );
+  let geometry = new Geometry("geometry", scene);
   geometry.setVerticesBuffer(positionsBuffer);
-  //geometry.setVerticesBuffer(normalsBuffer);
-  geometry.setIndices(index);
+  geometry.setVerticesBuffer(normalsBuffer);
+  //geometry.setIndexBuffer(index, vertexArray.length / 4, index.length);
   /* const minimum = new Vector3(
       spec.bounds.minX,
       spec.bounds.minY,
@@ -235,4 +246,63 @@ const createGeometry = (spec, engine) => {
   //const center = new Vector3(spec.bounds.center[0], spec.bounds.center[1], s>
   return geometry;
 };
+/* const createMaterial = async (spec: TerrainSpec) => {
+  const splatTexture = createSplatTexture(spec);
+  Promise.all(
+    spec.material.layers.map((layer) =>
+      fetch("http://localhost:8080" + layer.texturePath).then((response) => {
+        const layerTextures = response;
+        //    const uniforms = { ...this.#mapLight.uniforms };
+
+        return new RawTexture(
+          layerTextures,
+          spec.material.layers.length,
+          splatTexture,
+          uniforms,
+        );
+      }),
+    ),
+  );
+};
+
+const createSplatTexture = (spec: TerrainSpec) => {
+  const splat = spec.material.splat;
+
+  // No splat (0 or 1 layer)
+
+  if (!splat) {
+    // Return placeholder texture to keep uniforms consistent
+    return SPLAT_TEXTURE_PLACEHOLDER;
+  }
+
+  // Single splat (2 layers)
+
+  if (splat.channels === 1) {
+    const texture = new RawTexture(
+      splat.data,
+      splat.width,
+      splat.height,
+      Engine.TEXTUREFORMAT_R,
+    );
+    texture.minFilter = texture.magFilter = Texture.LINEAR_LINEAR;
+    texture.anisotropicFilteringLevel = 16;
+    texture.update();
+
+    return texture;
+  }
+
+  // Multiple splats (3+ layers)
+
+  const texture = CreateRGBAStorageTexture(
+    splat.data,
+    splat.width,
+    splat.height,
+  );
+  texture.minFilter = texture.magFilter = Texture.LINEAR_LINEAR;
+  texture.anisotropy = 16;
+  texture.needsUpdate = true;
+
+  return texture;
+};
+*/
 //# sourceMappingURL=Index.js.map
