@@ -14,7 +14,7 @@
     "typescript": "^5.3.3"
   },
   "dependencies": {
-    "@babylonjs/core": "^8.0.1",
+    "@babylonjs/core": "^9.6.0",
     "@wowserhq/format": "^0.28.0"
   }
 }
