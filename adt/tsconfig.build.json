@@ -3,9 +3,7 @@
     "composite": true,
     "outDir": "./dist",
     "rootDir": "./src",
-    "baseUrl": "src",
     "importHelpers": true,
-    "moduleResolution": "node",
     "module": "ES2020",
     "target": "es2021", // esnext has an issue with class generation and our decoders. TODO - avoid using decorators until in standard
     "declaration": true,
