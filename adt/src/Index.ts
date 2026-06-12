@@ -243,52 +243,30 @@ const createMesh = async (spec: TerrainSpec, scene: any) => {
 };
 
 const createGeometry = (spec: TerrainSpec, scene: any) => {
-  const vertexArray = new Float32Array(spec.geometry.vertexBuffer);
-  //const index = new Uint16Array(spec.geometry.indexBuffer);
-  const buffer = new Buffer(scene.getEngine(), vertexArray, false);
+  const vertexCount = spec.geometry.vertexBuffer.byteLength / 16;
+  const view = new DataView(spec.geometry.vertexBuffer);
 
-  const positionsBuffer = new VertexBuffer(
-    scene.getEngine(),
-    buffer,
-    VertexBuffer.PositionKind,
-    false,
-    false,
-    4,
-    false,
-    0,
-    3,
-  );
+  const positions = new Float32Array(vertexCount * 3);
+  for (let i = 0; i < vertexCount; i++) {
+    positions[i * 3 + 0] = view.getFloat32(i * 16 + 0, true); // x
+    positions[i * 3 + 1] = view.getFloat32(i * 16 + 8, true); // z (hauteur) → Y babylon
+    positions[i * 3 + 2] = view.getFloat32(i * 16 + 4, true); // y → Z babylon
+  }
 
-  const normalsBuffer = new VertexBuffer(
-    scene.getEngine(),
-    buffer,
-    VertexBuffer.NormalKind,
-    false,
-    undefined,
-    16,
-    undefined,
-    12,
-    4,
-    // 0,
-    //  true,
-  );
+ const normals = new Float32Array(vertexCount * 3);
+  for (let i = 0; i < vertexCount; i++) {
+    normals[i * 3 + 0] = view.getInt8(i * 16 + 12) / 127.0; // nx
+    normals[i * 3 + 1] = view.getInt8(i * 16 + 14) / 127.0; // nz → Y babylon
+    normals[i * 3 + 2] = view.getInt8(i * 16 + 13) / 127.0; // ny → Z babylon
+  }
 
-  let geometry = new Geometry("geometry", scene);
-  geometry.setVerticesBuffer(positionsBuffer);
-  geometry.setVerticesBuffer(normalsBuffer);
-  //geometry.setIndexBuffer(index, vertexArray.length / 4, index.length);
+  const indices = new Uint16Array(spec.geometry.indexBuffer);
 
-  /* const minimum = new Vector3(
-    spec.bounds.minX,
-    spec.bounds.minY,
-    spec.bounds.minZ,
-  );
-  const maximum = new Vector3(
-    spec.geometry.bounds.maxX,
-    spec.bounds.maxY,
-    spec.bounds.maxZ,
-  ); */
-  //const center = new Vector3(spec.bounds.center[0], spec.bounds.center[1], s>
+  const geometry = new Geometry("geometry", scene);
+  geometry.setVerticesData(VertexBuffer.PositionKind, positions);
+  geometry.setVerticesData(VertexBuffer.NormalKind, normals);
+  geometry.setIndices(indices);
+
   return geometry;
 };
 
