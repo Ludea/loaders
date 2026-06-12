@@ -253,7 +253,7 @@ const createGeometry = (spec: TerrainSpec, scene: any) => {
     positions[i * 3 + 2] = view.getFloat32(i * 16 + 4, true); // y → Z babylon
   }
 
- const normals = new Float32Array(vertexCount * 3);
+  const normals = new Float32Array(vertexCount * 3);
   for (let i = 0; i < vertexCount; i++) {
     normals[i * 3 + 0] = view.getInt8(i * 16 + 12) / 127.0; // nx
     normals[i * 3 + 1] = view.getInt8(i * 16 + 14) / 127.0; // nz → Y babylon

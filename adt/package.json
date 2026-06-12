@@ -6,7 +6,7 @@
     "test": "jest -c ../../../jest.config.ts",
     "clean": "rimraf dist, //&& rimraf *.tsbuildinfo",
     "compile": "tsc -b tsconfig.build.json",
-    "format": "prettier . --check"
+    "format": "prettier . --write"
   },
   "devDependencies": {
     "prettier": "^3.2.4",
