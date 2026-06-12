@@ -9,7 +9,6 @@ import type {
 import type { Scene } from "@babylonjs/core/scene";
 import { AssetContainer } from "@babylonjs/core/assetContainer";
 import { VertexBuffer } from "@babylonjs/core/Buffers/buffer";
-import { Buffer } from "@babylonjs/core/Buffers";
 //import { BoundingInfo } from "@babylonjs/core/Culling";
 import { Vector3 } from "@babylonjs/core/Maths";
 import { Mesh } from "@babylonjs/core/Meshes/mesh";
