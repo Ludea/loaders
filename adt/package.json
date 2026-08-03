@@ -11,7 +11,7 @@
   "devDependencies": {
     "prettier": "^3.2.4",
     "rimraf": "^6.0.1",
-    "typescript": "^6.0.3"
+    "typescript": "^7.0.2"
   },
   "dependencies": {
     "@babylonjs/core": "^9.10.1",
